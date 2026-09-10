@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fact Check: Annotator Judgment Game</title>
+<title>Fact Check: Annotator Judgment Game v2</title>
 <style>
 :root{
   --ink:#172033; --muted:#64748b; --line:#dbe2ea; --panel:#ffffff;
@@ -61,7 +61,7 @@ button{font:inherit}
 .review{margin-top:24px;text-align:left}
 .review-item{border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px}
 .review-item .small{font-size:.8rem;color:var(--muted)}
-.hidden{display:none!important}
+.hidden{display:none!important}.note{background:var(--warnbg);border:1px solid #f2d38b;padding:13px 15px;border-radius:10px;margin:0 0 18px;line-height:1.5}
 .badge{display:inline-block;padding:5px 9px;border-radius:999px;font-size:.75rem;font-weight:800;margin-left:6px}
 .badge.good{background:var(--goodbg);color:var(--good)}.badge.bad{background:var(--badbg);color:var(--bad)}
 .streak{color:var(--warn)}
@@ -92,7 +92,7 @@ button{font:inherit}
     <h2>Can you judge the fact?</h2>
     <p>
       Each round gives you a written description of what happens in a video,
-      a criterion, and one proposed fact. Your job is to make the best annotation decision.
+      a proposed fact. Depending on the round, you may also be given the criterion being judged. Your job is to make the best annotation decision.
       The situation is your evidence. Do not add information that the situation does not establish.
     </p>
     <div class="rules">
@@ -113,27 +113,24 @@ button{font:inherit}
 
   const rounds = [
     {
-      level:"LEVEL 1 · Criterion Basics", title:"Name the criterion",
+      level:"LEVEL 1 · Criterion Basics", title:"Name the criterion", type:"criterion",
       situation:"A woman walks into a kitchen, approaches the counter, picks up a metal kettle, and carries it to the sink.",
-      criterion:"ACTIONS_CHANGES",
       fact:"The woman picks up the kettle.",
       choices:["ACTIONS_CHANGES","ENTITIES","ENVIRONMENT","SPATIAL_RELATIONS"],
       answer:"ACTIONS_CHANGES",
       why:"Picking up the kettle is an action that happens over time. It belongs under ACTIONS_CHANGES."
     },
     {
-      level:"LEVEL 1 · Criterion Basics", title:"Name the criterion",
+      level:"LEVEL 1 · Criterion Basics", title:"Name the criterion", type:"criterion",
       situation:"A man is standing outside a shop. He is wearing a yellow hard hat and a blue jacket.",
-      criterion:"ENTITIES",
       fact:"The man is wearing a yellow hard hat.",
       choices:["ACTIONS_CHANGES","ENTITIES","ENVIRONMENT","CAMERA MOTION"],
       answer:"ENTITIES",
       why:"A worn or attached item is an attribute of the entity, so it belongs under ENTITIES."
     },
     {
-      level:"LEVEL 1 · Criterion Basics", title:"Name the criterion",
+      level:"LEVEL 1 · Criterion Basics", title:"Name the criterion", type:"criterion",
       situation:"A cyclist rides along a street. The camera slowly pans to the right to keep the cyclist in view.",
-      criterion:"CAMERA MOTION",
       fact:"The camera pans to the right.",
       choices:["CAMERA FRAMING","CAMERA MOTION","ACTIONS_CHANGES","SPATIAL_RELATIONS"],
       answer:"CAMERA MOTION",
@@ -284,15 +281,15 @@ button{font:inherit}
           <div class="level">${r.level}</div>
           <h2>${r.title}</h2>
         </div>
-        <div class="timer">Round ${current+1} of ${rounds.length}</div>
+        <div class="timer">${r.type==="criterion" ? "Criterion Identification" : "Annotation Judgment"} · Round ${current+1} of ${rounds.length}</div>
       </div>
       <div class="section-label">Situation</div>
       <div class="situation">${r.situation}</div>
-      <div class="section-label">Criterion</div>
-      <div class="criterion">${r.criterion}</div>
+      ${r.criterion ? `<div class="section-label">Criterion</div>
+      <div class="criterion">${r.criterion}</div>` : `<div class="note"><strong>Criterion identification:</strong> The criterion is intentionally hidden. Use the situation and proposed fact as your evidence.</div>`}
       <div class="section-label">Proposed Fact</div>
       <div class="fact"><p>“${r.fact}”</p></div>
-      <p class="question">What is the best annotation decision?</p>
+      <p class="question">${r.type==="criterion" ? "Which criterion should this fact belong to?" : "What is the best annotation decision?"}</p>
       <div class="choices" id="choices"></div>
       <div class="feedback" id="feedback" aria-live="polite"></div>
       <div class="actions">
